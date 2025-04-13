@@ -1,32 +1,66 @@
-local decalId = "138323848862554"
+local textToType = "CLE @mrlnation"
 local scriptUrl = "https://raw.githubusercontent.com/LouieCLE/CLe/refs/heads/main/CLE"
 
-local screenGui = Instance.new("ScreenGui", game.Players.LocalPlayer:WaitForChild("PlayerGui"))
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Create GUI
+local screenGui = Instance.new("ScreenGui", playerGui)
 screenGui.Name = "CLE_GUI"
 screenGui.ResetOnSpawn = false
 
-local image = Instance.new("ImageLabel", screenGui)
-image.Size = UDim2.new(0.3, 0, 0.3, 0)
-image.Position = UDim2.new(0.35, 0, 0.35, 0)
-image.BackgroundTransparency = 1
-image.Image = "rbxassetid://" .. decalId
-image.ScaleType = Enum.ScaleType.Fit
-image.ImageTransparency = 1
-image.ClipsDescendants = true
-image.Name = "CLEImage"
-
-local corner = Instance.new("UICorner", image)
-corner.CornerRadius = UDim.new(1, 0)
+local textLabel = Instance.new("TextLabel", screenGui)
+textLabel.Size = UDim2.new(0.5, 0, 0.2, 0)
+textLabel.Position = UDim2.new(0.25, 0, 0.4, 0)
+textLabel.BackgroundTransparency = 1
+textLabel.TextColor3 = Color3.new(1, 1, 1)
+textLabel.TextScaled = true
+textLabel.Font = Enum.Font.GothamBold
+textLabel.Text = ""
+textLabel.Name = "TypingEffect"
 
 local tweenService = game:GetService("TweenService")
-local fadeTime = 1
-local totalTime = 7
-local startTime = tick()
 
-local fadeIn = tweenService:Create(image, TweenInfo.new(fadeTime), {ImageTransparency = 0})
-local fadeOut = tweenService:Create(image, TweenInfo.new(fadeTime), {ImageTransparency = 1})
-
+-- Typing effect with blinking cursor
 spawn(function()
+	for i = 1, #textToType do
+		textLabel.Text = string.sub(textToType, 1, i) .. "|"
+		wait(0.1)
+	end
+	textLabel.Text = textToType
+	wait(0.5)
+
+	-- Fade out each letter one by one
+	for i = 1, #textToType do
+		local visibleText = string.sub(textToType, i + 1)
+		textLabel.Text = visibleText
+		wait(0.1)
+	end
+
+	textLabel.Visible = false
+
+	-- Image logo fade in and out
+	local decalId = "138323848862554"
+	local image = Instance.new("ImageLabel", screenGui)
+	image.Size = UDim2.new(0.3, 0, 0.3, 0)
+	image.Position = UDim2.new(0.35, 0, 0.35, 0)
+	image.BackgroundTransparency = 1
+	image.Image = "rbxassetid://" .. decalId
+	image.ScaleType = Enum.ScaleType.Fit
+	image.ImageTransparency = 1
+	image.ClipsDescendants = true
+	image.Name = "CLEImage"
+
+	local corner = Instance.new("UICorner", image)
+	corner.CornerRadius = UDim.new(1, 0)
+
+	local fadeTime = 1
+	local totalTime = 7
+	local startTime = tick()
+
+	local fadeIn = tweenService:Create(image, TweenInfo.new(fadeTime), {ImageTransparency = 0})
+	local fadeOut = tweenService:Create(image, TweenInfo.new(fadeTime), {ImageTransparency = 1})
+
 	while tick() - startTime < totalTime do
 		fadeIn:Play()
 		fadeIn.Completed:Wait()
@@ -38,6 +72,7 @@ spawn(function()
 
 	image.Visible = false
 
+	-- Load external script
 	pcall(function()
 		loadstring(game:HttpGet(scriptUrl))()
 	end)
