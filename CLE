@@ -10,13 +10,7 @@ screenGui.Name = "CLE_Info"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
 
--- Create Background Frame
-local backgroundFrame = Instance.new("Frame", screenGui)
-backgroundFrame.Size = UDim2.new(1, 0, 1, 0)
-backgroundFrame.BackgroundColor3 = Color3.new(0, 0, 0)
-backgroundFrame.BackgroundTransparency = 0
-
--- Create TextLabel for messages
+-- Create main TextLabel
 local textLabel = Instance.new("TextLabel")
 textLabel.Size = UDim2.new(0.8, 0, 0.15, 0)
 textLabel.Position = UDim2.new(0.1, 0, 0.3, 0)
@@ -24,7 +18,7 @@ textLabel.BackgroundTransparency = 1
 textLabel.TextScaled = true
 textLabel.Font = Enum.Font.SourceSansBold
 textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-textLabel.Parent = backgroundFrame
+textLabel.Parent = screenGui
 
 -- Typing animation function
 local function typeText(fullText)
@@ -50,7 +44,7 @@ local function fadeInImage(imageLabel)
 	tween.Completed:Wait()
 end
 
--- Step 1: Initial messages
+-- Step 1: Messages
 typeText("You cannot use CLE as for now.")
 wait(1)
 fadeOut(textLabel)
@@ -60,8 +54,8 @@ typeText("We are making some fixes to the executor.")
 wait(1)
 fadeOut(textLabel)
 
--- Step 2: Display image
-local image = Instance.new("ImageLabel", backgroundFrame)
+-- Step 2: Image
+local image = Instance.new("ImageLabel", screenGui)
 image.Size = UDim2.new(0.3, 0, 0.3, 0)
 image.Position = UDim2.new(0.35, 0, 0.25, 0)
 image.Image = "rbxassetid://138323848862554"
@@ -91,24 +85,14 @@ wait(3)
 discoRunning = false
 fadeOut(textLabel)
 
--- Step 4: Warning with red background and siren sound
-backgroundFrame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-
--- Add siren sound
-local sirenSound = Instance.new("Sound", backgroundFrame)
-sirenSound.SoundId = "rbxassetid://6525690145"
-sirenSound.Volume = 1
-sirenSound.Looped = true
-sirenSound:Play()
-
--- Display countdown
-local countdown = Instance.new("TextLabel", backgroundFrame)
+-- Step 4: Countdown
+local countdown = Instance.new("TextLabel", screenGui)
 countdown.Size = UDim2.new(0.8, 0, 0.1, 0)
 countdown.Position = UDim2.new(0.1, 0, 0.65, 0)
 countdown.BackgroundTransparency = 1
 countdown.TextScaled = true
 countdown.Font = Enum.Font.SourceSansBold
-countdown.TextColor3 = Color3.fromRGB(255, 255, 255)
+countdown.TextColor3 = Color3.fromRGB(255, 100, 100)
 countdown.Text = "You will be automatically kicked in 10 seconds."
 
 for i = 10, 1, -1 do
