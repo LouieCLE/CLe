@@ -1,23 +1,32 @@
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
 -- Create ScreenGui
-local screenGui = Instance.new("ScreenGui", playerGui)
+local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "CLE_Info"
 screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
 
--- Create TextLabel
-local textLabel = Instance.new("TextLabel", screenGui)
+-- Create Background Frame
+local backgroundFrame = Instance.new("Frame", screenGui)
+backgroundFrame.Size = UDim2.new(1, 0, 1, 0)
+backgroundFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+backgroundFrame.BackgroundTransparency = 0
+
+-- Create TextLabel for messages
+local textLabel = Instance.new("TextLabel")
 textLabel.Size = UDim2.new(0.8, 0, 0.15, 0)
 textLabel.Position = UDim2.new(0.1, 0, 0.3, 0)
 textLabel.BackgroundTransparency = 1
 textLabel.TextScaled = true
 textLabel.Font = Enum.Font.SourceSansBold
 textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+textLabel.Parent = backgroundFrame
 
--- Typing Animation Function
+-- Typing animation function
 local function typeText(fullText)
 	textLabel.Text = ""
 	for i = 1, #fullText do
@@ -26,14 +35,14 @@ local function typeText(fullText)
 	end
 end
 
--- Fade Out Animation Function
+-- Fade out animation
 local function fadeOut(obj)
 	local tween = TweenService:Create(obj, TweenInfo.new(1), {TextTransparency = 1})
 	tween:Play()
 	tween.Completed:Wait()
 end
 
--- Fade In Image Function
+-- Fade in image
 local function fadeInImage(imageLabel)
 	imageLabel.ImageTransparency = 1
 	local tween = TweenService:Create(imageLabel, TweenInfo.new(1), {ImageTransparency = 0})
@@ -41,7 +50,7 @@ local function fadeInImage(imageLabel)
 	tween.Completed:Wait()
 end
 
--- Step 1: Typing animation messages
+-- Step 1: Initial messages
 typeText("You cannot use CLE as for now.")
 wait(1)
 fadeOut(textLabel)
@@ -51,8 +60,8 @@ typeText("We are making some fixes to the executor.")
 wait(1)
 fadeOut(textLabel)
 
--- Step 2: Display image with fade in and round shape
-local image = Instance.new("ImageLabel", screenGui)
+-- Step 2: Display image
+local image = Instance.new("ImageLabel", backgroundFrame)
 image.Size = UDim2.new(0.3, 0, 0.3, 0)
 image.Position = UDim2.new(0.35, 0, 0.25, 0)
 image.Image = "rbxassetid://138323848862554"
@@ -61,23 +70,47 @@ image.ImageTransparency = 1
 image.ScaleType = Enum.ScaleType.Fit
 image.ClipsDescendants = true
 
--- Rounded shape using UICorner
 local corner = Instance.new("UICorner", image)
 corner.CornerRadius = UDim.new(1, 0)
 
 fadeInImage(image)
 
--- Step 3: Countdown Notification
-local countdown = Instance.new("TextLabel", screenGui)
+-- Step 3: Discord Contact with Disco Effect
+textLabel.TextTransparency = 0
+textLabel.Text = "Contact me on Discord @mrlnation"
+
+local discoRunning = true
+task.spawn(function()
+	while discoRunning do
+		textLabel.TextColor3 = Color3.fromHSV(math.random(), 1, 1)
+		wait(0.1)
+	end
+end)
+
+wait(3)
+discoRunning = false
+fadeOut(textLabel)
+
+-- Step 4: Warning with red background and siren sound
+backgroundFrame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+
+-- Add siren sound
+local sirenSound = Instance.new("Sound", backgroundFrame)
+sirenSound.SoundId = "rbxassetid://6525690145"
+sirenSound.Volume = 1
+sirenSound.Looped = true
+sirenSound:Play()
+
+-- Display countdown
+local countdown = Instance.new("TextLabel", backgroundFrame)
 countdown.Size = UDim2.new(0.8, 0, 0.1, 0)
 countdown.Position = UDim2.new(0.1, 0, 0.65, 0)
 countdown.BackgroundTransparency = 1
 countdown.TextScaled = true
 countdown.Font = Enum.Font.SourceSansBold
-countdown.TextColor3 = Color3.fromRGB(255, 100, 100)
+countdown.TextColor3 = Color3.fromRGB(255, 255, 255)
 countdown.Text = "You will be automatically kicked in 10 seconds."
 
--- Display countdown
 for i = 10, 1, -1 do
 	countdown.Text = "You will be automatically kicked in " .. i .. " second(s)."
 	wait(1)
@@ -86,6 +119,5 @@ for i = 10, 1, -1 do
 	end
 end
 
--- Kick the player
 wait(1)
 player:Kick("CLE closed for maintenance. Please try again later.")
