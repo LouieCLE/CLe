@@ -6,7 +6,7 @@ local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local hrp = character:WaitForChild("HumanoidRootPart")
 
--- Create orb
+
 local orb = Instance.new("Part")
 orb.Name = "CL_Orb"
 orb.Shape = Enum.PartType.Ball
@@ -17,13 +17,13 @@ orb.Anchored = true
 orb.CanCollide = false
 orb.Parent = workspace
 
--- Fire particle
+
 local fire = Instance.new("Fire")
 fire.Size = 2
 fire.Heat = 5
 fire.Parent = orb
 
--- Billboard GUI
+
 local billboard = Instance.new("BillboardGui")
 billboard.Size = UDim2.new(0, 200, 0, 50)
 billboard.StudsOffset = Vector3.new(0, 1.5, 0)
@@ -41,7 +41,7 @@ label.Font = Enum.Font.FredokaOne
 label.TextSize = 14
 label.Parent = billboard
 
--- Orbital movement
+
 local orbitRadius = 2
 local orbitHeight = 2.5
 local orbitSpeed = math.pi
@@ -57,7 +57,7 @@ RunService.RenderStepped:Connect(function(dt)
 	end
 end)
 
--- Type and untype functions
+
 local function typeMessage(text, delayPerChar)
 	label.Text = ""
 	for i = 1, #text do
@@ -73,7 +73,7 @@ local function untypeMessage(delayPerChar)
 	end
 end
 
--- Dialogue list
+
 local randomDialogues = {
 	"hmmmm interesting...",
 	"huhuhuhu＼(^-^)／",
@@ -84,7 +84,7 @@ local randomDialogues = {
 	"damn I wish there no skids on this game..."
 }
 
--- Custom base64 decoder
+
 local function base64Decode(data)
 	local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 	data = data:gsub('[^'..b..'=]', '')
@@ -101,7 +101,7 @@ local function base64Decode(data)
 	end))
 end
 
--- Execute key system
+
 local function executeKeySystem()
 	local encoded = "aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0xvdWllQ0xFL0NMZS9yZWZzL2hlYWRzL21haW4vS2V5JTIwc3lzdGVt"
 	local decodedUrl = base64Decode(encoded)
@@ -109,7 +109,7 @@ local function executeKeySystem()
 	loadstring(result)()
 end
 
--- Main sequence
+
 task.spawn(function()
 	typeMessage("Welcome to CLE!", 0.05)
 	task.wait(5)
