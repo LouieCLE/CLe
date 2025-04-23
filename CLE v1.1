@@ -1,365 +1,273 @@
+-- cOOlouie Executor GUI Final v1.2
 
+--// Services
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+
+--// Player
 local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
 
--- Create ScreenGui
-local screenGui = Instance.new("ScreenGui", playerGui)
-screenGui.Name = "CLE_Info"
-screenGui.ResetOnSpawn = false
+--// ScreenGui
+local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+screenGui.Name = "cOOlouieExecutor"
 
--- Create TextLabel
-local textLabel = Instance.new("TextLabel", screenGui)
-textLabel.Size = UDim2.new(0.8, 0, 0.15, 0)
-textLabel.Position = UDim2.new(0.1, 0, 0.3, 0)
-textLabel.BackgroundTransparency = 1
-textLabel.TextScaled = true
-textLabel.Font = Enum.Font.SourceSansBold
-textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+-- Toggle Button
+local toggleButton = Instance.new("ImageButton")
+toggleButton.Name = "ToggleGUI"
+toggleButton.Size = UDim2.new(0, 50, 0, 50)
+toggleButton.Position = UDim2.new(0, 10, 0.5, -25)
+toggleButton.Image = "rbxassetid://138323848862554"
+toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+toggleButton.Parent = screenGui
 
--- Typing Animation Function
-local function typeText(fullText)
-	textLabel.Text = ""
-	for i = 1, #fullText do
-		textLabel.Text = string.sub(fullText, 1, i)
-		wait(0.05)
-	end
+local toggleCorner = Instance.new("UICorner", toggleButton)
+toggleCorner.CornerRadius = UDim.new(1, 0)
+
+--// Main GUI Frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 500, 0, 350)
+mainFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
+mainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+mainFrame.ClipsDescendants = true
+
+-- Rounded RGB Edge
+local borderEffect = Instance.new("UIStroke", mainFrame)
+borderEffect.Thickness = 3
+borderEffect.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+borderEffect.Color = Color3.fromRGB(255, 0, 0)
+
+-- Animate RGB border
+task.spawn(function()
+while true do
+for h = 0, 1, 0.01 do
+borderEffect.Color = Color3.fromHSV(h, 1, 1)
+task.wait(0.05)
+end
+end
+end)
+
+local mainCorner = Instance.new("UICorner", mainFrame)
+mainCorner.CornerRadius = UDim.new(0, 12)
+
+--// Title
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 0, 40)
+titleLabel.BackgroundTransparency = 1
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextScaled = true
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.Text = ""
+titleLabel.Parent = mainFrame
+
+-- Un-type and Type Text
+local function typeAndUntype(obj, texts)
+while true do
+for _, text in ipairs(texts) do
+-- Type
+for i = 1, #text do
+obj.Text = string.sub(text, 1, i)
+task.wait(0.05)
+end
+task.wait(1.5)
+-- Untype
+for i = #text, 0, -1 do
+obj.Text = string.sub(text, 1, i)
+task.wait(0.04)
+end
+task.wait(0.5)
+end
+end
 end
 
--- Fade Out Animation Function
-local function fadeOut(obj)
-	local tween = TweenService:Create(obj, TweenInfo.new(1), {TextTransparency = 1})
-	tween:Play()
-	tween.Completed:Wait()
+task.spawn(function()
+typeAndUntype(titleLabel, {"CLE", "cOOlouie Executor"})
+end)
+
+--// Close Button
+local closeButton = Instance.new("TextButton")
+closeButton.Text = "X"
+closeButton.Size = UDim2.new(0, 30, 0, 30)
+closeButton.Position = UDim2.new(1, -40, 0, 5)
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.Font = Enum.Font.GothamBold
+closeButton.TextScaled = true
+closeButton.Parent = mainFrame
+
+local closeCorner = Instance.new("UICorner", closeButton)
+closeCorner.CornerRadius = UDim.new(1, 0)
+
+closeButton.MouseButton1Click:Connect(function()
+screenGui:Destroy()
+end)
+
+--// Version Label
+local versionLabel = Instance.new("TextLabel")
+versionLabel.Size = UDim2.new(0, 100, 0, 20)
+versionLabel.Position = UDim2.new(1, -110, 1, -25)
+versionLabel.BackgroundTransparency = 1
+versionLabel.Text = "Version 1.1"
+versionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+versionLabel.TextScaled = true
+versionLabel.Font = Enum.Font.Gotham
+versionLabel.Parent = mainFrame
+
+-- Toggle GUI visibility
+toggleButton.MouseButton1Click:Connect(function()
+mainFrame.Visible = not mainFrame.Visible
+end)
+
+--// Tab Holder
+local tabHolder = Instance.new("Frame")
+tabHolder.Size = UDim2.new(1, 0, 0, 40)
+tabHolder.Position = UDim2.new(0, 0, 0, 40)
+tabHolder.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+tabHolder.BorderSizePixel = 0
+tabHolder.Parent = mainFrame
+
+local tabCorner = Instance.new("UICorner", tabHolder)
+tabCorner.CornerRadius = UDim.new(0, 12)
+
+-- Tab Buttons
+local tabs = {"Executor", "Player Info", "Script Hub"}
+local tabButtons = {}
+
+for i, name in ipairs(tabs) do
+local tab = Instance.new("TextButton")
+tab.Name = name
+tab.Text = name
+tab.Size = UDim2.new(0, 140, 0, 30)
+tab.Position = UDim2.new(0, 10 + ((i - 1) * 150), 0, 5)
+tab.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+tab.TextColor3 = Color3.fromRGB(255, 255, 255)
+tab.Font = Enum.Font.Gotham
+tab.TextScaled = true
+tab.Parent = tabHolder
+
+local corner = Instance.new("UICorner", tab)  
+corner.CornerRadius = UDim.new(0, 10)  
+
+tabButtons[name] = tab
+
 end
 
--- Fade In Image Function
-local function fadeInImage(imageLabel)
-	imageLabel.ImageTransparency = 1
-	local tween = TweenService:Create(imageLabel, TweenInfo.new(1), {ImageTransparency = 0})
-	tween:Play()
-	tween.Completed:Wait()
+-- Tab Content Frames
+local contentFrames = {}
+for _, name in ipairs(tabs) do
+local frame = Instance.new("Frame")
+frame.Name = name
+frame.Size = UDim2.new(1, 0, 1, -80)
+frame.Position = UDim2.new(0, 0, 0, 80)
+frame.BackgroundTransparency = 1
+frame.Visible = false
+frame.Parent = mainFrame
+contentFrames[name] = frame
 end
 
--- Step 1: Typing animation messages
-typeText("You cannot use CLE as for now.")
-wait(1)
-fadeOut(textLabel)
-
-textLabel.TextTransparency = 0
-typeText("We are making some fixes to the executor.")
-wait(1)
-fadeOut(textLabel)
-
--- Step 2: Display image with fade in and round shape
-local image = Instance.new("ImageLabel", screenGui)
-image.Size = UDim2.new(0.3, 0, 0.3, 0)
-image.Position = UDim2.new(0.35, 0, 0.25, 0)
-image.Image = "rbxassetid://138323848862554"
-image.BackgroundTransparency = 1
-image.ImageTransparency = 1
-image.ScaleType = Enum.ScaleType.Fit
-image.Cllocal Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-
--- Create ScreenGui
-local screenGui = Instance.new("ScreenGui", playerGui)
-screenGui.Name = "CLE_Info"
-screenGui.ResetOnSpawn = false
-
--- Create TextLabel
-local textLabel = Instance.new("TextLabel", screenGui)
-textLabel.Size = UDim2.new(0.8, 0, 0.15, 0)
-textLabel.Position = UDim2.new(0.1, 0, 0.3, 0)
-textLabel.BackgroundTransparency = 1
-textLabel.TextScaled = true
-textLabel.Font = Enum.Font.SourceSansBold
-textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-
--- Typing Animation Function
-local function typeText(fullText)
-	textLabel.Text = ""
-	for i = 1, #fullText do
-		textLabel.Text = string.sub(fullText, 1, i)
-		wait(0.05)
-	end
+for name, button in pairs(tabButtons) do
+button.MouseButton1Click:Connect(function()
+for _, frame in pairs(contentFrames) do
+frame.Visible = false
+end
+contentFrames[name].Visible = true
+end)
 end
 
--- Fade Out Animation Function
-local function fadeOut(obj)
-	local tween = TweenService:Create(obj, TweenInfo.new(1), {TextTransparency = 1})
-	tween:Play()
-	tween.Completed:Wait()
+-- Default tab
+contentFrames["Executor"].Visible = true
+
+-- Executor Tab
+local executorBox = Instance.new("TextBox")
+executorBox.Size = UDim2.new(0.9, 0, 0.6, 0)
+executorBox.Position = UDim2.new(0.05, 0, 0.1, 0)
+executorBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+executorBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+executorBox.PlaceholderText = "-- Paste your script here"
+executorBox.Text = ""
+executorBox.ClearTextOnFocus = false
+executorBox.TextXAlignment = Enum.TextXAlignment.Left
+executorBox.TextYAlignment = Enum.TextYAlignment.Top
+executorBox.TextWrapped = true
+executorBox.MultiLine = true
+executorBox.Font = Enum.Font.Code
+executorBox.TextScaled = false
+executorBox.TextSize = 16
+executorBox.Parent = contentFrames["Executor"]
+
+local execButton = Instance.new("TextButton")
+execButton.Text = "Execute"
+execButton.Size = UDim2.new(0, 100, 0, 30)
+execButton.Position = UDim2.new(0.05, 0, 0.8, 0)
+execButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+execButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+execButton.Font = Enum.Font.GothamBold
+execButton.TextScaled = true
+execButton.Parent = contentFrames["Executor"]
+
+local execCorner = Instance.new("UICorner", execButton)
+execCorner.CornerRadius = UDim.new(0, 10)
+
+execButton.MouseButton1Click:Connect(function()
+local success, err = pcall(function()
+loadstring(executorBox.Text)()
+end)
+if not success then
+warn("Execution Error: ", err)
 end
+end)
 
--- Fade In Image Function
-local function fadeInImage(imageLabel)
-	imageLabel.ImageTransparency = 1
-	local tween = TweenService:Create(imageLabel, TweenInfo.new(1), {ImageTransparency = 0})
-	tween:Play()
-	tween.Completed:Wait()
-end
+local clearButton = Instance.new("TextButton")
+clearButton.Text = "Clear"
+clearButton.Size = UDim2.new(0, 100, 0, 30)
+clearButton.Position = UDim2.new(0.25, 0, 0.8, 0)
+clearButton.BackgroundColor3 = Color3.fromRGB(170, 0, 0)
+clearButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+clearButton.Font = Enum.Font.GothamBold
+clearButton.TextScaled = true
+clearButton.Parent = contentFrames["Executor"]
 
--- Step 1: Typing animation messages
-typeText("You cannot use CLE as for now.")
-wait(1)
-fadeOut(textLabel)
+local clearCorner = Instance.new("UICorner", clearButton)
+clearCorner.CornerRadius = UDim.new(0, 10)
 
-textLabel.TextTransparency = 0
-typeText("We are making some fixes to the executor.")
-wait(1)
-fadeOut(textLabel)
+clearButton.MouseButton1Click:Connect(function()
+executorBox.Text = ""
+end)
 
--- Step 2: Display image with fade in and round shape
-local image = Instance.new("ImageLabel", screenGui)
-image.Size = UDim2.new(0.3, 0, 0.3, 0)
-image.Position = UDim2.new(0.35, 0, 0.25, 0)
-image.Image = "rbxassetid://138323848862554"
-image.BackgroundTransparency = 1
-image.ImageTransparency = 1
-image.ScaleType = Enum.ScaleType.Fit
-image.ClipsDescendants = true
+-- Player Info Tab
+local infoText = Instance.new("TextLabel")
+infoText.Size = UDim2.new(1, -20, 1, -20)
+infoText.Position = UDim2.new(0, 10, 0, 10)
+infoText.BackgroundTransparency = 1
+infoText.TextColor3 = Color3.fromRGB(255, 255, 255)
+infoText.Font = Enum.Font.Gotham
+infoText.TextSize = 18
+infoText.TextXAlignment = Enum.TextXAlignment.Left
+infoText.TextYAlignment = Enum.TextYAlignment.Top
+infoText.TextWrapped = true
+infoText.Text = ""
+infoText.Parent = contentFrames["Player Info"]
 
--- Rounded shape using UICorner
-local corner = Instance.new("UICorner", image)
-corner.CornerRadius = UDim.new(1, 0)
+RunService.RenderStepped:Connect(function()
+local ping = math.random(30, 100)
+local playerCount = #Players:GetPlayers()
+infoText.Text = "Username: " .. player.Name ..
+"\nDisplay Name: " .. player.DisplayName ..
+"\nPing: " .. ping .. " ms" ..
+"\nPlayers in Game: " .. playerCount
+end)
 
-fadeInImage(image)
-
--- Step 3: Countdown Notification
-local countdown = Instance.new("TextLabel", screenGui)
-countdown.Size = UDim2.new(0.8, 0, 0.1, 0)
-countdown.Position = UDim2.new(0.1, 0, 0.65, 0)
-countdown.BackgroundTransparency = 1
-countdown.TextScaled = true
-countdown.Font = Enum.Font.SourceSansBold
-countdown.TextColor3 = Color3.fromRGB(255, 100, 100)
-countdown.Text = "You will be automatically kicked in 10 seconds."
-
--- Display countdown
-for i = 10, 1, -1 do
-	countdown.Text = "You will be automatically kicked in " .. i .. " second(s)."
-	wait(1)
-	if i == 1 then
-		countdown.Text = "Boom!"
-	end
-end
-
--- Kick the player
-wlocal Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-
--- Create ScreenGui
-local screenGui = Instance.new("ScreenGui", playerGui)
-screenGui.Name = "CLE_Info"
-screenGui.ResetOnSpawn = false
-
--- Create TextLabel
-local textLabel = Instance.new("TextLabel", screenGui)
-textLabel.Size = UDim2.new(0.8, 0, 0.15, 0)
-textLabel.Position = UDim2.new(0.1, 0, 0.3, 0)
-textLabel.BackgroundTransparency = 1
-textLabel.TextScaled = true
-textLabel.Font = Enum.Font.SourceSansBold
-textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-
--- Typing Animation Function
-local function typeText(fullText)
-	textLabel.Text = ""
-	for i = 1, #fullText do
-		textLabel.Text = string.sub(fullText, 1, i)
-		wait(0.05)
-	end
-end
-
--- Fade Out Animation Function
-local function fadeOut(obj)
-	local tween = TweenService:Create(obj, TweenInfo.new(1), {TextTransparency = 1})
-	tween:Play()
-	tween.Completed:Wait()
-end
-
--- Fade In Image Function
-local function fadeInImage(imageLabel)
-	imageLabel.ImageTransparency = 1
-	local tween = TweenService:Create(imageLabel, TweenInfo.new(1), {ImageTransparency = 0})
-	tween:Play()
-	tween.Completed:Wait()
-end
-
--- Step 1: Typing animation messages
-typeText("You cannot use CLE as for now.")
-wait(1)
-fadeOut(textLabel)
-
-textLabel.TextTransparency = 0
-typeText("We are making some fixes to the executor.")
-wait(1)
-fadeOut(textLabel)
-
--- Step 2: Display image with fade in and round shape
-local image = Instance.new("ImageLabel", screenGui)
-image.Size = UDim2.new(0.3, 0, 0.3, 0)
-image.Position = UDim2.new(0.35, 0, 0.25, 0)
-image.Image = "rbxassetid://138323848862554"
-image.BackgroundTransparency = 1
-image.ImageTransparency = 1
-image.ScaleType = Enum.ScaleType.Fit
-image.Cllocal Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-
--- Create ScreenGui
-local screenGui = Instance.new("ScreenGui", playerGui)
-screenGui.Name = "CLE_Info"
-screenGui.ResetOnSpawn = false
-
--- Create TextLabel
-local textLabel = Instance.new("TextLabel", screenGui)
-textLabel.Size = UDim2.new(0.8, 0, 0.15, 0)
-textLabel.Position = UDim2.new(0.1, 0, 0.3, 0)
-textLabel.BackgroundTransparency = 1
-textLabel.TextScaled = true
-textLabel.Font = Enum.Font.SourceSansBold
-textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-
--- Typing Animation Function
-local function typeText(fullText)
-	textLabel.Text = ""
-	for i = 1, #fullText do
-		textLabel.Text = string.sub(fullText, 1, i)
-		wait(0.05)
-	end
-end
-
--- Fade Out Animation Function
-local function fadeOut(obj)
-	local tween = TweenService:Create(obj, TweenInfo.new(1), {TextTransparency = 1})
-	tween:Play()
-	tween.Completed:Wait()
-end
-
--- Fade In Image Function
-local function fadeInImage(imageLabel)
-	imageLabel.ImageTransparency = 1
-	local tween = TweenService:Create(imageLabel, TweenInfo.new(1), {ImageTransparency = 0})
-	tween:Play()
-	tween.Completed:Wait()
-end
-
--- Step 1: Typing animation messages
-typeText("You cannot use CLE as for now.")
-wait(1)
-fadeOut(textLabel)
-
-textLabel.TextTransparency = 0
-typeText("We are making some fixes to the executor.")
-wait(1)
-fadeOut(textLabel)
-
--- Step 2: Display image with fade in and round shape
-local image = Instance.new("ImageLabel", screenGui)
-image.Size = UDim2.new(0.3, 0, 0.3, 0)
-image.Position = UDim2.new(0.35, 0, 0.25, 0)
-image.Image = "rbxassetid://138323848862554"
-image.BackgroundTransparency = 1
-image.ImageTransparency = 1
-image.ScaleType = Enum.ScaleType.Fit
-image.ClipsDescendants = true
-
--- Rounded shape using UICorner
-local corner = Instance.new("UICorner", image)
-corner.CornerRadius = UDim.new(1, 0)
-
-fadeInImage(image)
-
--- Step 3: Countdown Notification
-local countdown = Instance.new("TextLabel", screenGui)
-countdown.Size = UDim2.new(0.8, 0, 0.1, 0)
-countdown.Position = UDim2.new(0.1, 0, 0.65, 0)
-countdown.BackgroundTransparency = 1
-countdown.TextScaled = true
-countdown.Font = Enum.Font.SourceSansBold
-countdown.TextColor3 = Color3.fromRGB(255, 100, 100)
-countdown.Text = "You will be automatically kicked in 10 seconds."
-
--- Display countdown
-for i = 10, 1, -1 do
-	countdown.Text = "You will be automatically kicked in " .. i .. " second(s)."
-	wait(1)
-	if i == 1 then
-		countdown.Text = "Boom!"
-	end
-end
-
--- Kick the player
-wait(1)
-player:Kick("CLE closed for maintenance. Please try again later.")
-ipsDescendants = true
-
--- Rounded shape using UICorner
-local corner = Instance.new("UICorner", image)
-corner.CornerRadius = UDim.new(1, 0)
-
-fadeInImage(image)
-
--- Step 3: Countdown Notification
-local countdown = Instance.new("TextLabel", screenGui)
-countdown.Size = UDim2.new(0.8, 0, 0.1, 0)
-countdown.Position = UDim2.new(0.1, 0, 0.65, 0)
-countdown.BackgroundTransparency = 1
-countdown.TextScaled = true
-countdown.Font = Enum.Font.SourceSansBold
-countdown.TextColor3 = Color3.fromRGB(255, 100, 100)
-countdown.Text = "You will be automatically kicked in 10 seconds."
-
--- Display countdown
-for i = 10, 1, -1 do
-	countdown.Text = "You will be automatically kicked in " .. i .. " second(s)."
-	wait(1)
-	if i == 1 then
-		countdown.Text = "Boom!"
-	end
-end
-
--- Kick the player
-wait(1)
-player:Kick("CLE closed for maintenance. Please try again later.")
-ait(1)
-player:Kick("CLE closed for maintenance. Please try again later.")
-ipsDescendants = true
-
--- Rounded shape using UICorner
-local corner = Instance.new("UICorner", image)
-corner.CornerRadius = UDim.new(1, 0)
-
-fadeInImage(image)
-
--- Step 3: Countdown Notification
-local countdown = Instance.new("TextLabel", screenGui)
-countdown.Size = UDim2.new(0.8, 0, 0.1, 0)
-countdown.Position = UDim2.new(0.1, 0, 0.65, 0)
-countdown.BackgroundTransparency = 1
-countdown.TextScaled = true
-countdown.Font = Enum.Font.SourceSansBold
-countdown.TextColor3 = Color3.fromRGB(255, 100, 100)
-countdown.Text = "You will be automatically kicked in 10 seconds."
-
--- Display countdown
-for i = 10, 1, -1 do
-	countdown.Text = "You will be automatically kicked in " .. i .. " second(s)."
-	wait(1)
-	if i == 1 then
-		countdown.Text = "Boom!"
-	end
-end
-
--- Kick the player
-wait(1)
-player:Kick("CLE closed for maintenance. Please try again later.")
+-- Script Hub Tab
+local comingSoon = Instance.new("TextLabel")
+comingSoon.Size = UDim2.new(1, 0, 1, 0)
+comingSoon.Position = UDim2.new(0, 0, 0, 0)
+comingSoon.BackgroundTransparency = 1
+comingSoon.TextColor3 = Color3.fromRGB(200, 200, 255)
+comingSoon.Font = Enum.Font.GothamBold
+comingSoon.TextScaled = true
+comingSoon.Text = "Coming Soon...\nSubmit scripts: @mrlnation"
+comingSoon.Parent = contentFrames["Script Hub"]
