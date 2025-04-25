@@ -19,10 +19,31 @@ toggleButton.Size = UDim2.new(0, 50, 0, 50)
 toggleButton.Position = UDim2.new(0, 10, 0.5, -25)
 toggleButton.Image = "rbxassetid://138323848862554"
 toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+toggleButton.BorderSizePixel = 0
+toggleButton.Active = true
+toggleButton.Draggable = true
 toggleButton.Parent = screenGui
 
 local toggleCorner = Instance.new("UICorner", toggleButton)
 toggleCorner.CornerRadius = UDim.new(1, 0)
+
+-- FPS Counter
+local fpsLabel = Instance.new("TextLabel")
+fpsLabel.Size = UDim2.new(0, 100, 0, 20)
+fpsLabel.Position = UDim2.new(0, 10, 0, 10)
+fpsLabel.BackgroundTransparency = 1
+fpsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+fpsLabel.Font = Enum.Font.Gotham -- Default font for FPS
+fpsLabel.TextScaled = true
+fpsLabel.Parent = screenGui
+
+local lastFrameTime = 0
+
+RunService.RenderStepped:Connect(function(deltaTime)
+	local fps = 1 / deltaTime
+	fpsLabel.Text = string.format("FPS: %.1f", fps)
+	lastFrameTime = deltaTime
+end)
 
 --// Main GUI Frame
 local mainFrame = Instance.new("Frame")
@@ -32,6 +53,7 @@ mainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 mainFrame.BorderSizePixel = 0
 mainFrame.Active = true
 mainFrame.Draggable = true
+mainFrame.Visible = false -- Initially hidden
 mainFrame.Parent = screenGui
 mainFrame.ClipsDescendants = true
 
@@ -43,12 +65,12 @@ borderEffect.Color = Color3.fromRGB(255, 0, 0)
 
 -- Animate RGB border
 task.spawn(function()
-while true do
-for h = 0, 1, 0.01 do
-borderEffect.Color = Color3.fromHSV(h, 1, 1)
-task.wait(0.05)
-end
-end
+	while true do
+		for h = 0, 1, 0.01 do
+			borderEffect.Color = Color3.fromHSV(h, 1, 1)
+			task.wait(0.05)
+		end
+	end
 end)
 
 local mainCorner = Instance.new("UICorner", mainFrame)
@@ -66,26 +88,26 @@ titleLabel.Parent = mainFrame
 
 -- Un-type and Type Text
 local function typeAndUntype(obj, texts)
-while true do
-for _, text in ipairs(texts) do
--- Type
-for i = 1, #text do
-obj.Text = string.sub(text, 1, i)
-task.wait(0.05)
-end
-task.wait(1.5)
--- Untype
-for i = #text, 0, -1 do
-obj.Text = string.sub(text, 1, i)
-task.wait(0.04)
-end
-task.wait(0.5)
-end
-end
+	while true do
+		for _, text in ipairs(texts) do
+			-- Type
+			for i = 1, #text do
+				obj.Text = string.sub(text, 1, i)
+				task.wait(0.05)
+			end
+			task.wait(1.5)
+			-- Untype
+			for i = #text, 0, -1 do
+				obj.Text = string.sub(text, 1, i)
+				task.wait(0.04)
+			end
+			task.wait(0.5)
+		end
+	end
 end
 
 task.spawn(function()
-typeAndUntype(titleLabel, {"CLE", "cOOlouie Executor"})
+	typeAndUntype(titleLabel, {"CLE", "cOOlouie Executor"})
 end)
 
 --// Close Button
@@ -97,13 +119,15 @@ closeButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
 closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 closeButton.Font = Enum.Font.GothamBold
 closeButton.TextScaled = true
+closeButton.Active = true
+closeButton.Draggable = true
 closeButton.Parent = mainFrame
 
 local closeCorner = Instance.new("UICorner", closeButton)
 closeCorner.CornerRadius = UDim.new(1, 0)
 
 closeButton.MouseButton1Click:Connect(function()
-screenGui:Destroy()
+	screenGui:Destroy()
 end)
 
 --// Version Label
@@ -117,9 +141,67 @@ versionLabel.TextScaled = true
 versionLabel.Font = Enum.Font.Gotham
 versionLabel.Parent = mainFrame
 
+--// Updates GUI
+local updatesGui = Instance.new("Frame")
+updatesGui.Name = "CLEUpdates"
+updatesGui.Size = UDim2.new(0, 300, 0, 150)
+updatesGui.Position = UDim2.new(0.5, -150, 0.5, -75)
+updatesGui.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+updatesGui.BorderSizePixel = 0
+updatesGui.Parent = screenGui
+
+local updatesCorner = Instance.new("UICorner", updatesGui)
+updatesCorner.CornerRadius = UDim.new(0, 10)
+
+local updatesTitle = Instance.new("TextLabel")
+updatesTitle.Size = UDim2.new(1, 0, 0, 30)
+updatesTitle.Position = UDim2.new(0, 0, 0, 0)
+updatesTitle.BackgroundTransparency = 1
+updatesTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+updatesTitle.Font = Enum.Font.GothamBold
+updatesTitle.TextScaled = true
+updatesTitle.Text = "CLE Updates!"
+updatesTitle.Parent = updatesGui
+
+local updatesText = Instance.new("TextLabel")
+updatesText.Size = UDim2.new(0.9, 0, 0.6, 0)
+updatesText.Position = UDim2.new(0.05, 0, 0.2, 0)
+updatesText.BackgroundTransparency = 1
+updatesText.TextColor3 = Color3.fromRGB(200, 200, 200)
+updatesText.Font = Enum.Font.Gotham
+updatesText.TextScaled = true
+updatesText.TextXAlignment = Enum.TextXAlignment.Left
+updatesText.TextYAlignment = Enum.TextYAlignment.Top
+updatesText.TextWrapped = true
+updatesText.Text = "Welcome to cOOlouie Executor!\n\n- Draggable toggle button!\n- Draggable close button!\n- This update window!"
+updatesText.Parent = updatesGui
+
+-- Function to fade out a GUI element
+local function fadeOut(guiObject, duration)
+	local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+	local tween = TweenService:Create(guiObject, tweenInfo, {Transparency = 1})
+	tween:Play()
+	tween.Completed:Connect(function()
+		guiObject.Visible = false
+		guiObject.Transparency = 0
+	end)
+end
+
+-- Initially hide toggle button and FPS, show updates GUI, then fade out and show main GUI
+toggleButton.Visible = false
+fpsLabel.Visible = false
+updatesGui.Visible = true
+
+task.delay(5, function()
+	fadeOut(updatesGui, 2) -- Fade out over 2 seconds
+	mainFrame.Visible = true -- Show the main CLE GUI after the update GUI fades
+	toggleButton.Visible = true -- Show the toggle button
+	fpsLabel.Visible = true -- Show the FPS counter
+end)
+
 -- Toggle GUI visibility
 toggleButton.MouseButton1Click:Connect(function()
-mainFrame.Visible = not mainFrame.Visible
+	mainFrame.Visible = not mainFrame.Visible
 end)
 
 --// Tab Holder
@@ -138,44 +220,44 @@ local tabs = {"Executor", "Player Info", "Script Hub"}
 local tabButtons = {}
 
 for i, name in ipairs(tabs) do
-local tab = Instance.new("TextButton")
-tab.Name = name
-tab.Text = name
-tab.Size = UDim2.new(0, 140, 0, 30)
-tab.Position = UDim2.new(0, 10 + ((i - 1) * 150), 0, 5)
-tab.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-tab.TextColor3 = Color3.fromRGB(255, 255, 255)
-tab.Font = Enum.Font.Gotham
-tab.TextScaled = true
-tab.Parent = tabHolder
+	local tab = Instance.new("TextButton")
+	tab.Name = name
+	tab.Text = name
+	tab.Size = UDim2.new(0, 140, 0, 30)
+	tab.Position = UDim2.new(0, 10 + ((i - 1) * 150), 0, 5)
+	tab.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	tab.TextColor3 = Color3.fromRGB(255, 255, 255)
+	tab.Font = Enum.Font.Gotham
+	tab.TextScaled = true
+	tab.Parent = tabHolder
 
-local corner = Instance.new("UICorner", tab)  
-corner.CornerRadius = UDim.new(0, 10)  
+	local corner = Instance.new("UICorner", tab)
+	corner.CornerRadius = UDim.new(0, 10)
 
-tabButtons[name] = tab
+	tabButtons[name] = tab
 
 end
 
 -- Tab Content Frames
 local contentFrames = {}
 for _, name in ipairs(tabs) do
-local frame = Instance.new("Frame")
-frame.Name = name
-frame.Size = UDim2.new(1, 0, 1, -80)
-frame.Position = UDim2.new(0, 0, 0, 80)
-frame.BackgroundTransparency = 1
-frame.Visible = false
-frame.Parent = mainFrame
-contentFrames[name] = frame
+	local frame = Instance.new("Frame")
+	frame.Name = name
+	frame.Size = UDim2.new(1, 0, 1, -80)
+	frame.Position = UDim2.new(0, 0, 0, 80)
+	frame.BackgroundTransparency = 1
+	frame.Visible = false
+	frame.Parent = mainFrame
+	contentFrames[name] = frame
 end
 
 for name, button in pairs(tabButtons) do
-button.MouseButton1Click:Connect(function()
-for _, frame in pairs(contentFrames) do
-frame.Visible = false
-end
-contentFrames[name].Visible = true
-end)
+	button.MouseButton1Click:Connect(function()
+		for _, frame in pairs(contentFrames) do
+			frame.Visible = false
+		end
+		contentFrames[name].Visible = true
+	end)
 end
 
 -- Default tab
@@ -213,12 +295,12 @@ local execCorner = Instance.new("UICorner", execButton)
 execCorner.CornerRadius = UDim.new(0, 10)
 
 execButton.MouseButton1Click:Connect(function()
-local success, err = pcall(function()
-loadstring(executorBox.Text)()
-end)
-if not success then
-warn("Execution Error: ", err)
-end
+	local success, err = pcall(function()
+		loadstring(executorBox.Text)()
+	end)
+	if not success then
+		warn("Execution Error: ", err)
+	end
 end)
 
 local clearButton = Instance.new("TextButton")
@@ -235,7 +317,7 @@ local clearCorner = Instance.new("UICorner", clearButton)
 clearCorner.CornerRadius = UDim.new(0, 10)
 
 clearButton.MouseButton1Click:Connect(function()
-executorBox.Text = ""
+	executorBox.Text = ""
 end)
 
 -- Player Info Tab
@@ -253,12 +335,12 @@ infoText.Text = ""
 infoText.Parent = contentFrames["Player Info"]
 
 RunService.RenderStepped:Connect(function()
-local ping = math.random(30, 100)
-local playerCount = #Players:GetPlayers()
-infoText.Text = "Username: " .. player.Name ..
-"\nDisplay Name: " .. player.DisplayName ..
-"\nPing: " .. ping .. " ms" ..
-"\nPlayers in Game: " .. playerCount
+	local ping = math.random(30, 100)
+	local playerCount = #Players:GetPlayers()
+	infoText.Text = "Username: " .. player.Name ..
+		"\nDisplay Name: " .. player.DisplayName ..
+		"\nPing: " .. ping .. " ms" ..
+		"\nPlayers in Game: " .. playerCount
 end)
 
 -- Script Hub Tab
