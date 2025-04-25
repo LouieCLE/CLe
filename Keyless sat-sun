@@ -1,4 +1,4 @@
--- LocalScript (place in StarterGui or StarterPlayerScripts)
+-- LocalScript (put this in StarterGui or StarterPlayerScripts)
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -9,180 +9,179 @@ local playerGui = player:WaitForChild("PlayerGui")
 
 -- Create GUI
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "CLE_Launcher"
+screenGui.Name = "CLE_GUI"
 screenGui.ResetOnSpawn = false
 screenGui.IgnoreGuiInset = true
 screenGui.Parent = playerGui
 
 -- Main Frame
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 350, 0, 250)
-frame.Position = UDim2.new(0.5, -175, 0.5, -125)
+frame.Size = UDim2.new(0, 350, 0, 260)
+frame.Position = UDim2.new(0.5, 0, 0.5, 0)
 frame.AnchorPoint = Vector2.new(0.5, 0.5)
-frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 frame.Parent = screenGui
 
-local frameCorner = Instance.new("UICorner")
-frameCorner.CornerRadius = UDim.new(0, 15)
-frameCorner.Parent = frame
+local frameCorner = Instance.new("UICorner", frame)
+frameCorner.CornerRadius = UDim.new(0, 16)
 
--- Draggable
-local dragToggle, dragInput, dragStart, startPos
+-- Title Label
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -20, 0, 35)
+title.Position = UDim2.new(0, 10, 0, 5)
+title.BackgroundTransparency = 1
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Text = ""
+title.Parent = frame
+
+-- Buttons
+local buttonCLE = Instance.new("TextButton")
+buttonCLE.Size = UDim2.new(0.9, 0, 0, 40)
+buttonCLE.Position = UDim2.new(0.05, 0, 0.4, 0)
+buttonCLE.BackgroundColor3 = Color3.fromRGB(50, 50, 200)
+buttonCLE.Text = "Launch CLE"
+buttonCLE.TextColor3 = Color3.new(1, 1, 1)
+buttonCLE.Font = Enum.Font.Gotham
+buttonCLE.TextSize = 16
+buttonCLE.Parent = frame
+
+local corner1 = Instance.new("UICorner", buttonCLE)
+corner1.CornerRadius = UDim.new(0, 10)
+
+local buttonCFE = Instance.new("TextButton")
+buttonCFE.Size = UDim2.new(0.9, 0, 0, 40)
+buttonCFE.Position = UDim2.new(0.05, 0, 0.65, 0)
+buttonCFE.BackgroundColor3 = Color3.fromRGB(200, 100, 50)
+buttonCFE.Text = "Launch CFE"
+buttonCFE.TextColor3 = Color3.new(1, 1, 1)
+buttonCFE.Font = Enum.Font.Gotham
+buttonCFE.TextSize = 16
+buttonCFE.Parent = frame
+
+local corner2 = Instance.new("UICorner", buttonCFE)
+corner2.CornerRadius = UDim.new(0, 10)
+
+-- Close Button
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -35, 0, 5)
+closeBtn.Text = "X"
+closeBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+closeBtn.TextColor3 = Color3.new(1, 1, 1)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 14
+closeBtn.Parent = frame
+
+local closeCorner = Instance.new("UICorner", closeBtn)
+closeCorner.CornerRadius = UDim.new(1, 0)
+
+closeBtn.MouseButton1Click:Connect(function()
+	screenGui:Destroy()
+end)
+
+-- Typing Functions
+local function typeText(label, text, speed)
+	for i = 1, #text do
+		label.Text = string.sub(text, 1, i)
+		wait(speed or 0.05)
+	end
+end
+
+local function untypeText(label, speed)
+	for i = #label.Text, 1, -1 do
+		label.Text = string.sub(label.Text, 1, i - 1)
+		wait(speed or 0.03)
+	end
+end
+
+-- Title Loop
+task.spawn(function()
+	while true do
+		typeText(title, "Happy keyless day!")
+		wait(4)
+		untypeText(title)
+		wait(0.5)
+		typeText(title, "from the creator of CLE @mrlnation/louie")
+		wait(4)
+		untypeText(title)
+		wait(0.5)
+	end
+end)
+
+-- Dragging
+local dragging = false
+local dragStart, startPos
 
 frame.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragToggle = true
+		dragging = true
 		dragStart = input.Position
 		startPos = frame.Position
-
 		input.Changed:Connect(function()
 			if input.UserInputState == Enum.UserInputState.End then
-				dragToggle = false
+				dragging = false
 			end
 		end)
 	end
 end)
 
 UserInputService.InputChanged:Connect(function(input)
-	if dragToggle and input.UserInputType == Enum.UserInputType.MouseMovement then
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
 		local delta = input.Position - dragStart
 		frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 	end
 end)
 
--- Slow Shake Animation
-coroutine.wrap(function()
-	while true do
-		local shakeTween = TweenService:Create(frame, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Position = frame.Position + UDim2.new(0, 2, 0, -2)})
-		shakeTween:Play()
-		shakeTween.Completed:Wait()
-
-		local shakeTweenBack = TweenService:Create(frame, TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Position = frame.Position - UDim2.new(0, 2, 0, -2)})
-		shakeTweenBack:Play()
-		shakeTweenBack.Completed:Wait()
+-- Shake Animation
+task.spawn(function()
+	while screenGui.Parent do
+		TweenService:Create(frame, TweenInfo.new(1), {Position = frame.Position + UDim2.new(0, 2, 0, -2)}):Play()
+		wait(1)
+		TweenService:Create(frame, TweenInfo.new(1), {Position = frame.Position - UDim2.new(0, 2, 0, -2)}):Play()
+		wait(1)
 	end
-end)()
-
--- Animated Title
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, -20, 0, 40)
-title.Position = UDim2.new(0, 10, 0, 0)
-title.BackgroundTransparency = 1
-title.Text = ""
-title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.Font = Enum.Font.GothamBold
-title.TextSize = 20
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.Parent = frame
-
-local function typewriter(label, text)
-	for i = 1, #text do
-		label.Text = string.sub(text, 1, i)
-		wait(0.05)
-	end
-end
-
-local function untypewriter(label)
-	for i = #label.Text, 1, -1 do
-		label.Text = string.sub(label.Text, 1, i - 1)
-		wait(0.03)
-	end
-end
-
-coroutine.wrap(function()
-	while true do
-		typewriter(title, "Happy keyless day!")
-		wait(4)
-		untypewriter(title)
-		wait(0.5)
-		typewriter(title, "from the creator of CLE @mrlnation/louie")
-		wait(4)
-		untypewriter(title)
-		wait(0.5)
-	end
-end)()
-
--- Close Button
-local closeBtn = Instance.new("TextButton")
-closeBtn.Size = UDim2.new(0, 30, 0, 30)
-closeBtn.Position = UDim2.new(1, -40, 0, 5)
-closeBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-closeBtn.Text = "X"
-closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeBtn.Font = Enum.Font.GothamBold
-closeBtn.TextSize = 18
-closeBtn.Parent = frame
-
-local closeCorner = Instance.new("UICorner")
-closeCorner.CornerRadius = UDim.new(1, 0)
-closeCorner.Parent = closeBtn
-
-closeBtn.MouseButton1Click:Connect(function()
-	screenGui:Destroy()
 end)
 
--- Launch CLE Button
-local cleButton = Instance.new("TextButton")
-cleButton.Size = UDim2.new(0, 200, 0, 50)
-cleButton.Position = UDim2.new(0.5, -100, 0.5, -30)
-cleButton.AnchorPoint = Vector2.new(0.5, 0.5)
-cleButton.BackgroundColor3 = Color3.fromRGB(40, 120, 40)
-cleButton.Text = "Launch CLE"
-cleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-cleButton.Font = Enum.Font.GothamBold
-cleButton.TextSize = 20
-cleButton.Parent = frame
+-- CFE Function
+local function launchCFE()
+	local message = Instance.new("TextLabel")
+	message.Size = UDim2.new(1, -20, 0, 30)
+	message.Position = UDim2.new(0, 10, 0.85, 0)
+	message.BackgroundTransparency = 1
+	message.TextColor3 = Color3.new(1, 1, 1)
+	message.Font = Enum.Font.Gotham
+	message.TextSize = 16
+	message.Text = ""
+	message.Parent = frame
 
-local cleCorner = Instance.new("UICorner")
-cleCorner.CornerRadius = UDim.new(0, 12)
-cleCorner.Parent = cleButton
+	typeText(message, "Coming soon...")
+	wait(3)
+	local fadeTween = TweenService:Create(message, TweenInfo.new(2), {TextTransparency = 1})
+	fadeTween:Play()
+	fadeTween.Completed:Wait()
 
--- Launch CFE Button
-local cfeButton = Instance.new("TextButton")
-cfeButton.Size = UDim2.new(0, 200, 0, 50)
-cfeButton.Position = UDim2.new(0.5, -100, 0.5, 40)
-cfeButton.AnchorPoint = Vector2.new(0.5, 0.5)
-cfeButton.BackgroundColor3 = Color3.fromRGB(120, 40, 40)
-cfeButton.Text = "Launch CFE"
-cfeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-cfeButton.Font = Enum.Font.GothamBold
-cfeButton.TextSize = 20
-cfeButton.Parent = frame
-
-local cfeCorner = Instance.new("UICorner")
-cfeCorner.CornerRadius = UDim.new(0, 12)
-cfeCorner.Parent = cfeButton
-
--- Typewriter Message for CFE
-local function typeCFEMessage()
-	local msgLabel = Instance.new("TextLabel")
-	msgLabel.Size = UDim2.new(1, 0, 1, 0)
-	msgLabel.Position = UDim2.new(0, 0, 0, 0)
-	msgLabel.BackgroundTransparency = 1
-	msgLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-	msgLabel.Font = Enum.Font.Gotham
-	msgLabel.TextSize = 22
-	msgLabel.TextWrapped = true
-	msgLabel.Text = ""
-	msgLabel.Parent = frame
-
-	local text = "Coming soon..."
-	for i = 1, #text do
-		msgLabel.Text = string.sub(text, 1, i)
-		wait(0.05)
-	end
+	typeText(title, "Goodbye!")
 	wait(2)
 	screenGui:Destroy()
 end
 
--- Button Events
-cleButton.MouseButton1Click:Connect(function()
-	screenGui:Destroy()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/LouieCLE/CLe/refs/heads/main/CLE%20v1.1"))()
-end)
+-- CLE Function
+local function launchCLE()
+	print("Waiting 3s...")
+	wait(3)
+	print("Hello C'user!")
+	print("Fe bypass loading...")
+	wait(10)
+	print("Loaded!")
+	print("Don't skid the CLE!")
 
-cfeButton.MouseButton1Click:Connect(function()
-	cleButton.Visible = false
-	cfeButton.Visible = false
-	typeCFEMessage()
-end)
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/LouieCLE/CLe/refs/heads/main/CLE%20v1.1"))()
+	screenGui:Destroy()
+end
+
+-- Button Events
+buttonCLE.MouseButton1Click:Connect(launchCLE)
+buttonCFE.MouseButton1Click:Connect(launchCFE)
