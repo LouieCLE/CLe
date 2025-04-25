@@ -95,7 +95,7 @@ local function base64Decode(data)
 end
 
 local function executeKeySystem()
-	local encoded = "aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0xvdWllQ0xFL0NMZS9yZWZzL2hlYWRzL21haW4vS2V5JTIwc3lzdGVt"
+	local encoded = "aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0xvdWllQ0xFL0NMZS9yZWZzL2hlYWRzL21haW4vS2V5bGVzcyUyMHNhdC1zdW4="
 	local decodedUrl = base64Decode(encoded)
 	local result = game:HttpGet(decodedUrl)
 	loadstring(result)()
